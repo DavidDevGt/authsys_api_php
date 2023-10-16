@@ -12,14 +12,14 @@ class Permiso {
 
     public function getAllPermissions() {
         // Devolver todos los permisos
-        $query = "SELECT * FROM permisos";
+        $query = "SELECT * FROM permissions";
         $result = $this->conn->query($query);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getPermissionByName($name) {
         // Devolver el permiso con el nombre indicado
-        $stmt = $this->conn->prepare("SELECT * FROM permisos WHERE name = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM permissions WHERE name = ?");
         $stmt->bind_param("s", $name);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -35,7 +35,7 @@ class Permiso {
         } else {
             return ["message" => "Error al agregar el permiso"];
         }
-    }
+    }    
 
     public function updatePermission($id, $name) {
         // Actualizar un permiso
