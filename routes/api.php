@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
+// Archivos requeridos
 require_once __DIR__ . '/../controllers/UsuarioController.php';
 require_once __DIR__ . '/../controllers/RolController.php';
 require_once __DIR__ . '/../controllers/PermisoController.php';
