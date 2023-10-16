@@ -1,8 +1,8 @@
 <?php
 // Encabezados para soporte CORS
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Origin: *"); // Aqui tengo que cambiar * por mi sitio web cuando mande a produccion
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE"); // Metodos que permito en mi API
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"); // Headers
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
@@ -14,6 +14,7 @@ require_once __DIR__ . '/../controllers/RolController.php';
 require_once __DIR__ . '/../controllers/PermisoController.php';
 require_once __DIR__ . '/../views/response.php';
 
+// Declaramos los controladores
 $usuarioController = new UsuarioController();
 $rolController = new RolController();
 $permisoController = new PermisoController();
@@ -23,6 +24,7 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 // Procesar la solicitud según el método HTTP y la acción proporcionada
 switch ($requestMethod) {
+    // Peticiones POST
     case 'POST':
         // Verificar si se proporciona una acción
         if (isset($_GET['action'])) {
@@ -82,6 +84,7 @@ switch ($requestMethod) {
         }
         break;
 
+    // Peticiones GET
     case 'GET':
         if (isset($_GET['action'])) {
             switch ($_GET['action']) {
