@@ -8,4 +8,32 @@ class RolController {
     public function __construct() {
         $this->rolModel = new Rol();
     }
+
+    public function getAllRoles() {
+        // Devolver todos los roles
+    }
+
+    public function getRoleByName($name) {
+        // Devolver el rol con el nombre
+    }
+
+    public function addRole($data) {
+        // Agregar un rol
+    }
+
+    public function updateRole($id, $data) {
+        // Actualizar un rol
+    }
+
+    public function deleteRole($roleId) {
+        // Eliminar un rol
+    }
+
+    public function assignPermission($roleId, $permissionId) {
+        // Asignar un permiso a un rol
+    }
+
+    public function revokePermission($roleId, $permissionId) {
+        // Revocar un permiso de un rol
+    }
 }
