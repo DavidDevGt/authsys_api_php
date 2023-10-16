@@ -44,7 +44,7 @@ class Rol
     public function updateRole($id, $name, $description)
     {
         // Actualizar un rol
-        $stmt = $this->conn->prepare("UPDATE user_roles SET name ?, description = ? WHERE id = ?");
+        $stmt = $this->conn->prepare("UPDATE user_roles SET name = ?, description = ? WHERE id = ?");
         $stmt->bind_param("ssi", $name, $description, $id);
         if ($stmt->execute()) {
             return ["message" => "Rol actualizado exitosamente"];
