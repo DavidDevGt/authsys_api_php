@@ -69,5 +69,26 @@ class Usuario
     public function verify($data)
     {
         // Implementar la función verify
+        $email = $data['email'];
+        $token = $data['token'];
+        $sql = "SELECT id FROM user_auth WHERE email = '$email'";
+        $result = $this->conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $user_auth_id = $row['id'];
+            if ($this->authController->verifyToken($user_auth_id, $token)) {
+                $sqlUpdate = "UPDATE user_auth SET is_verified = TRUE WHERE id = $user_auth_id";
+                if ($this->conn->query($sqlUpdate)) {
+                    jsonResponse(["success" => true, "message" => "Verificación exitosa."]);
+                } else {
+                    jsonResponse(["success" => false, "message" => "Error al verificar la cuenta."], 500);
+                }
+            } else {
+                jsonResponse(["success" => false, "message" => "Token incorrecto o expirado."], 400);
+            }
+        } else {
+            jsonResponse(["success" => false, "message" => "Correo electrónico no registrado."], 400);
+        }
     }
 }
