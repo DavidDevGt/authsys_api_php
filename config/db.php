@@ -1,13 +1,15 @@
 <?php
 
-class Database {
+class Database
+{
     private $host = "localhost";
     private $db_name = "auth_template";
     private $username = "root";
     private $password = "";
     public $conn;
 
-    public function getConnection() {
+    public function getConnection()
+    {
         $this->conn = null;
         try {
             $this->conn = new mysqli($this->host, $this->username, $this->password, $this->db_name);

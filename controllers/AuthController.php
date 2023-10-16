@@ -2,15 +2,18 @@
 
 require_once '../config/db.php';
 
-class AuthController {
+class AuthController
+{
     private $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         $database = new Database();
         $this->conn = $database->getConnection();
     }
 
-    public function generarToken($user_auth_id) {
+    public function generarToken($user_auth_id)
+    {
         // Generar un token aleatorio
         $token = substr(md5(uniqid(rand(), true)), 0, 5);
 
@@ -23,7 +26,8 @@ class AuthController {
         }
     }
 
-    public function verifyToken($user_auth_id, $token) {
+    public function verifyToken($user_auth_id, $token)
+    {
         // Verificar si el token es válido
         $sql = "SELECT token FROM verification_tokens WHERE user_auth_id = $user_auth_id AND token = '$token'";
         $result = $this->conn->query($sql);
@@ -37,7 +41,8 @@ class AuthController {
         }
     }
 
-    public  function deleteOldToken() {
+    public function deleteOldToken()
+    {
         // Eliminar tokens que tengan más de 30 minutos de haber sido creados
         $sql = "DELETE FROM verification_tokens WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)";
         $this->conn->query($sql);
