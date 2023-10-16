@@ -1,4 +1,5 @@
 <?php
+// Formato JSON para respuestas del servidor
 function jsonResponse($data, $status = 200)
 {
     header('Content-Type: application/json');
