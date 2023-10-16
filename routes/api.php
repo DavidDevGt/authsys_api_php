@@ -9,13 +9,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 require_once __DIR__ . '/../controllers/UsuarioController.php';
-require_once __DIR__ . '../controllers/RolController.php';
-require_once __DIR__ . '../controllers/PermisoController.php';
+//require_once __DIR__ . '../controllers/RolController.php';
+//require_once __DIR__ . '../controllers/PermisoController.php';
 require_once __DIR__ . '/../views/response.php';
 
 $usuarioController = new UsuarioController();
-$rolController = new RolController();
-$permisoController = new PermisoController();
+//$rolController = new RolController();
+//$permisoController = new PermisoController();
 
 // Verificar el método de la solicitud HTTP
 $requestMethod = $_SERVER['REQUEST_METHOD'];
