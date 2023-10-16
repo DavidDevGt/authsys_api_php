@@ -1,7 +1,7 @@
 <?php
-require_once '../config/db.php';
-require_once '../controllers/AuthController.php';
-require_once '../views/response.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../views/response.php';
+
 
 class Usuario
 {
@@ -12,7 +12,7 @@ class Usuario
     {
         $database = new Database();
         $this->conn = $database->getConnection();
-        $this->authController = new AuthController();
+        $this->authController = new \AuthController();
     }
 
     public function register($data)

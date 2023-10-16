@@ -1,6 +1,6 @@
 <?php
-require_once '../controllers/UsuarioController.php';
-require_once '../views/response.php';
+require_once __DIR__ . '/../controllers/UsuarioController.php';
+require_once __DIR__ . '/../views/response.php';
 
 $usuarioController = new UsuarioController();
 
