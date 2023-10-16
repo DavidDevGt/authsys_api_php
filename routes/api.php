@@ -24,7 +24,7 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 // Procesar la solicitud según el método HTTP y la acción proporcionada
 switch ($requestMethod) {
-    // Peticiones POST
+        // Peticiones POST
     case 'POST':
         // Verificar si se proporciona una acción
         if (isset($_GET['action'])) {
@@ -84,7 +84,7 @@ switch ($requestMethod) {
         }
         break;
 
-    // Peticiones GET
+        // Peticiones GET
     case 'GET':
         if (isset($_GET['action'])) {
             switch ($_GET['action']) {
@@ -93,18 +93,25 @@ switch ($requestMethod) {
                     $response = $rolController->getAllRoles();
                     jsonResponse($response);
                     break;
-                case 'getRoleByName':
-                    // Devolver el rol con el nombre determinado
-                    $response = $rolController->getRoleByName($_GET['name']);
+                case 'getRoleById':
+                    if (!isset($_GET['id'])) {
+                        jsonResponse(["message" => "El parámetro 'id' es requerido"], 400);
+                        exit;
+                    }
+                    $response = $rolController->getRoleById($_GET['id']);
+                    jsonResponse($response);
                     break;
                 case 'getAllPermissions':
                     // Devolver todos los permisos
                     $response = $permisoController->getAllPermissions();
                     jsonResponse($response);
                     break;
-                case 'getPermissionByName':
-                    // Devolver el permiso con el nombre determinado
-                    $response = $permisoController->getPermissionByName($_GET['name']);
+                case 'getPermissionById':
+                    if (!isset($_GET['id'])) {
+                        jsonResponse(["message" => "El parámetro 'id' es requerido"], 400);
+                        exit;
+                    }
+                    $response = $permisoController->getPermissionById($_GET['id']);
                     jsonResponse($response);
                     break;
                 default:

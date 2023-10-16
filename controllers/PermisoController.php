@@ -17,33 +17,33 @@ class PermisoController
         return $this->permisoModel->getAllPermissions();
     }
 
-    public function getPermissionByName($name)
+    public function getPermissionById($id)
     {
-        // Devolver el permiso con el nombre indicado
-        return $this->permisoModel->getPermissionByName($name);
+        return $this->permisoModel->getPermissionById($id);
     }
 
     public function addPermission($data)
     {
         // Agregar un permiso
-        if (!isset($data['name'])) {
+        if (!isset($data['permission'])) {
             return ["message" => "El nombre del permiso es requerido"];
         }
 
-        $permissionName = $data['name'];
+        $permissionName = $data['permission'];
         return $this->permisoModel->addPermission($permissionName);
     }
 
     public function updatePermission($id, $data)
     {
         // Asegurarte de que el nombre del permiso esté establecido
-        if (!isset($data['name'])) {
+        if (!isset($data['permission'])) {
             return ["message" => "El nombre del permiso es requerido"];
         }
 
-        $permissionName = $data['name'];
+        $permissionName = $data['permission'];
         return $this->permisoModel->updatePermission($id, $permissionName);
     }
+
 
     public function deletePermission($id)
     {

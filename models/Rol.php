@@ -20,14 +20,17 @@ class Rol
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function getRoleByName($name)
+    public function getRoleById($id)
     {
-        // Devolver el rol con el nombre indicado
-        $stmt = $this->conn->prepare("SELECT * FROM user_roles WHERE name = ?");
-        $stmt->bind_param("s", $name);
+        // Devolver el rol con el ID indicado
+        $stmt = $this->conn->prepare("SELECT * FROM user_roles WHERE id = ?");
+        $stmt->bind_param("i", $id);
         $stmt->execute();
+
         $result = $stmt->get_result();
+        return $result->fetch_assoc();
     }
+
 
     public function addRole($name, $description)
     {
