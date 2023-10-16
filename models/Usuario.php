@@ -39,6 +39,31 @@ class Usuario
     public function login($data)
     {
         // Implementar la función login
+        $email = $data['email'];
+        $password = $data['password'];
+        $sql = "SELECT id, password, is_verified FROM user_auth WHERE email = '$email'";
+        $result = $this->conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if (password_verify($password, $row['password'])) {
+                if ($row['is_verified']) {
+                    $session_id = session_id();
+                    $sqlSession = "INSERT INTO user_sessions (user_auth_id, session_id, created_at, updated_at) VALUES (" . $row['id'] . ", '$session_id', NOW(), NOW())";
+                    if ($this->conn->query($sqlSession) === TRUE) {
+                        jsonResponse(["success" => true, "message" => "Inicio de sesión exitoso", "session_id" => $session_id]);
+                    } else {
+                        jsonResponse(["success" => false, "message" => "Error al iniciar sesión"], 500);
+                    }
+                } else {
+                    jsonResponse(["success" => false, "message" => "Cuenta no verificada. Por favor verifica tu correo."], 400);
+                }
+            } else {
+                jsonResponse(["success" => false, "message" => "Contraseña incorrecta."], 400);
+            }
+        } else {
+            jsonResponse(["success" => false, "message" => "Correo electrónico no registrado."], 400);
+        }
     }
 
     public function verify($data)
