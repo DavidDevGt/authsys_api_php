@@ -15,7 +15,7 @@ Hola 👋, soy **DavidDevGt** y este es mi proyecto de un sistema de autenticaci
 2. Importa la estructura de la base de datos desde el archivo `config.sql`.
 3. Asegúrate de que tu servidor PHP esté funcionando y dirígete a la dirección del proyecto para comenzar a utilizar la API.
 
-## Contribuciones
+## Ayudame a mejorar
 
 Las contribuciones son bienvenidas. Si encuentras algún problema o tienes alguna sugerencia, no dudes en abrir un issue o hacer un pull request.
 
