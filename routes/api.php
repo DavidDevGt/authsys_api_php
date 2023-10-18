@@ -24,7 +24,7 @@ $permisoController = new PermisoController();
 // Verificar el método de la solicitud HTTP
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-// Funciones para verificar la sesión del usuario
+// Funciones para las sesiones y roles
 function verificarSesion()
 {
     if (!isset($_SESSION['user_id']) || !$_SESSION['is_authenticated']) {
@@ -33,6 +33,18 @@ function verificarSesion()
     }
     return true;
 }
+
+function verificarRol($rolRequerido) {
+    // Primero, verificamos si el usuario está autenticado
+    verificarSesion();
+
+    // Luego, verificamos si tiene el rol requerido
+    if ($_SESSION['role_id'] != $rolRequerido) {
+        jsonResponse(["message" => "No tienes permiso para realizar esta acción."], 403);
+        exit;
+    }
+}
+
 
 // Procesar la solicitud según el método HTTP y la acción proporcionada
 switch ($requestMethod) {
@@ -64,35 +76,41 @@ switch ($requestMethod) {
                 case 'addRole':
                     // Agregar un rol
                     verificarSesion();
+                    verificarRol('admin');
                     $response = $rolController->addRole($_POST);
                     jsonResponse($response);
                     break;
                 case 'updateRole':
                     // Actualizar un rol
                     verificarSesion();
+                    verificarRol('admin');
                     $response = $rolController->updateRole($_POST['id'], $_POST);
                     break;
                 case 'deleteRole':
                     // Eliminar un rol
                     verificarSesion();
+                    verificarRol('admin');
                     $response = $rolController->deleteRole($_POST['id']);
                     jsonResponse($response);
                     break;
                 case 'addPermission':
                     // Agregar un permiso
                     verificarSesion();
+                    verificarRol('admin');
                     $response = $permisoController->addPermission($_POST);
                     jsonResponse($response);
                     break;
                 case 'updatePermission':
                     // Actualizar un permiso
                     verificarSesion();
+                    verificarRol('admin');
                     $response = $permisoController->updatePermission($_POST['id'], $_POST);
                     jsonResponse($response);
                     break;
                 case 'deletePermission':
                     // Eliminar un permiso
                     verificarSesion();
+                    verificarRol('admin');
                     $response = $permisoController->deletePermission($_POST['id']);
                     jsonResponse($response);
                     break;

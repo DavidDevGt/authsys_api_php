@@ -56,3 +56,10 @@ role_id INT,
 permission VARCHAR(255),
 FOREIGN KEY (role_id) REFERENCES user_roles(id)
 );
+
+-- Creación de roles iniciales
+INSERT INTO user_roles (name, description)
+VALUES
+  ('admin', 'Administrador del sistema'),
+  ('user', 'Usuario del sistema');
+
