@@ -22,6 +22,11 @@ class UsuarioController
         return $this->model->login($data);
     }
 
+    public function logout()
+    {
+        return $this->model->logout();
+    }
+
     public function verify($data)
     {
         return $this->model->verify($data);

@@ -48,6 +48,18 @@ class Usuario
             $row = $result->fetch_assoc();
             if (password_verify($password, $row['password'])) {
                 if ($row['is_verified']) {
+                    // Guardar el id del usuario en la sesión
+                    $_SESSION['user_id'] = $row['id'];
+                    $_SESSION['is_authenticated'] = true;
+
+                    // Traerme el rol del usuario para validar si tiene permisos
+                    $sqlRoles = "SELECT role_id FROM user_role_assignments WHERE user_auth_id = " . $row['id'];
+                    $resultRoles = $this->conn->query($sqlRoles);
+                    if ($resultRoles->num_rows > 0) {
+                        $rowRoles = $resultRoles->fetch_assoc();
+                        $_SESSION['role_id'] = $rowRoles['role_id'];
+                    }
+
                     $session_id = session_id();
                     $sqlSession = "INSERT INTO user_sessions (user_auth_id, session_id, created_at, updated_at) VALUES (" . $row['id'] . ", '$session_id', NOW(), NOW())";
                     if ($this->conn->query($sqlSession) === TRUE) {
@@ -65,6 +77,21 @@ class Usuario
             jsonResponse(["success" => false, "message" => "Correo electrónico no registrado."], 400);
         }
     }
+
+    public function logout()
+    {
+        // Comprobar si una sesión ya está iniciada
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Destruir la sesión y limpiar la información de sesión
+        session_unset();
+        session_destroy();
+
+        return ["success" => true, "message" => "Desconectado exitosamente."];
+    }
+
 
     public function verify($data)
     {

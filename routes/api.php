@@ -4,6 +4,8 @@ header("Access-Control-Allow-Origin: *"); // Aqui tengo que cambiar * por mi sit
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE"); // Metodos que permito en mi API
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"); // Headers
 
+session_start();
+
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
@@ -21,6 +23,16 @@ $permisoController = new PermisoController();
 
 // Verificar el método de la solicitud HTTP
 $requestMethod = $_SERVER['REQUEST_METHOD'];
+
+// Funciones para verificar la sesión del usuario
+function verificarSesion()
+{
+    if (!isset($_SESSION['user_id']) || !$_SESSION['is_authenticated']) {
+        jsonResponse(["message" => "No estás autenticado. Por favor, inicia sesión."], 401);
+        exit;
+    }
+    return true;
+}
 
 // Procesar la solicitud según el método HTTP y la acción proporcionada
 switch ($requestMethod) {
@@ -44,32 +56,43 @@ switch ($requestMethod) {
                     $response = $usuarioController->verify($_POST);
                     jsonResponse($response);
                     break;
+                case 'logout':
+                    verificarSesion();
+                    $response = $usuarioController->logout();
+                    jsonResponse($response);
+                    break;
                 case 'addRole':
                     // Agregar un rol
+                    verificarSesion();
                     $response = $rolController->addRole($_POST);
                     jsonResponse($response);
                     break;
                 case 'updateRole':
                     // Actualizar un rol
+                    verificarSesion();
                     $response = $rolController->updateRole($_POST['id'], $_POST);
                     break;
                 case 'deleteRole':
                     // Eliminar un rol
+                    verificarSesion();
                     $response = $rolController->deleteRole($_POST['id']);
                     jsonResponse($response);
                     break;
                 case 'addPermission':
                     // Agregar un permiso
+                    verificarSesion();
                     $response = $permisoController->addPermission($_POST);
                     jsonResponse($response);
                     break;
                 case 'updatePermission':
                     // Actualizar un permiso
+                    verificarSesion();
                     $response = $permisoController->updatePermission($_POST['id'], $_POST);
                     jsonResponse($response);
                     break;
                 case 'deletePermission':
                     // Eliminar un permiso
+                    verificarSesion();
                     $response = $permisoController->deletePermission($_POST['id']);
                     jsonResponse($response);
                     break;
@@ -90,10 +113,13 @@ switch ($requestMethod) {
             switch ($_GET['action']) {
                 case 'getAllRoles':
                     // Devolver todos los roles
+                    verificarSesion();
                     $response = $rolController->getAllRoles();
                     jsonResponse($response);
                     break;
                 case 'getRoleById':
+                    // Devolver un rol por su id
+                    verificarSesion();
                     if (!isset($_GET['id'])) {
                         jsonResponse(["message" => "El parámetro 'id' es requerido"], 400);
                         exit;
@@ -103,10 +129,13 @@ switch ($requestMethod) {
                     break;
                 case 'getAllPermissions':
                     // Devolver todos los permisos
+                    verificarSesion();
                     $response = $permisoController->getAllPermissions();
                     jsonResponse($response);
                     break;
                 case 'getPermissionById':
+                    // Devolver un permiso por su id
+                    verificarSesion();
                     if (!isset($_GET['id'])) {
                         jsonResponse(["message" => "El parámetro 'id' es requerido"], 400);
                         exit;
