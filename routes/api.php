@@ -24,7 +24,7 @@ $permisoController = new PermisoController();
 // Verificar el método de la solicitud HTTP
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
- // Funciones para las sesiones y roles
+// Funciones para las sesiones y roles
 function verificarSesion()
 {
     if (!isset($_SESSION['user_id']) || !$_SESSION['is_authenticated']) {
@@ -34,7 +34,8 @@ function verificarSesion()
     return true;
 }
 
-function verificarRol($rolRequerido) {
+function verificarRol($rolRequerido)
+{
     // Primero, verificamos si el usuario está autenticado
     verificarSesion();
 
@@ -114,6 +115,12 @@ switch ($requestMethod) {
                     $response = $permisoController->deletePermission($_POST['id']);
                     jsonResponse($response);
                     break;
+                case 'updateProfile':
+                    // Actualizar el perfil del usuario
+                    verificarSesion();
+                    $response = $usuarioController->updateProfile($_SESSION['user_id'], $_POST);
+                    jsonResponse($response);
+                    break;
                 default:
                     // Acción no reconocida
                     jsonResponse(["message" => "Acción no permitida"], 400);
@@ -163,6 +170,12 @@ switch ($requestMethod) {
                         exit;
                     }
                     $response = $permisoController->getPermissionById($_GET['id']);
+                    jsonResponse($response);
+                    break;
+                case 'getProfile':
+                    // Devolver el perfil del usuario por el id de la sesión
+                    verificarSesion();
+                    $response = $usuarioController->getProfile($_SESSION['user_id']);
                     jsonResponse($response);
                     break;
                 default:
