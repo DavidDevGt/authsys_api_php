@@ -24,7 +24,7 @@ $permisoController = new PermisoController();
 // Verificar el método de la solicitud HTTP
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-// Funciones para las sesiones y roles
+ // Funciones para las sesiones y roles
 function verificarSesion()
 {
     if (!isset($_SESSION['user_id']) || !$_SESSION['is_authenticated']) {
@@ -132,12 +132,14 @@ switch ($requestMethod) {
                 case 'getAllRoles':
                     // Devolver todos los roles
                     verificarSesion();
+                    verificarRol('admin');
                     $response = $rolController->getAllRoles();
                     jsonResponse($response);
                     break;
                 case 'getRoleById':
                     // Devolver un rol por su id
                     verificarSesion();
+                    verificarRol('admin');
                     if (!isset($_GET['id'])) {
                         jsonResponse(["message" => "El parámetro 'id' es requerido"], 400);
                         exit;
@@ -148,12 +150,14 @@ switch ($requestMethod) {
                 case 'getAllPermissions':
                     // Devolver todos los permisos
                     verificarSesion();
+                    verificarRol('admin');
                     $response = $permisoController->getAllPermissions();
                     jsonResponse($response);
                     break;
                 case 'getPermissionById':
                     // Devolver un permiso por su id
                     verificarSesion();
+                    verificarRol('admin');
                     if (!isset($_GET['id'])) {
                         jsonResponse(["message" => "El parámetro 'id' es requerido"], 400);
                         exit;

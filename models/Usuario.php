@@ -26,6 +26,17 @@ class Usuario
             $user_auth_id = $this->conn->insert_id;
             $token = $this->authController->generarToken($user_auth_id);
             if ($token) {
+                // Obtener el ID del rol 'user'
+                $sqlRol = "SELECT id FROM user_roles WHERE name = 'user'";
+                $resultRol = $this->conn->query($sqlRol);
+                if ($resultRol->num_rows > 0) {
+                    $rowRol = $resultRol->fetch_assoc();
+                    $userRolId = $rowRol['id'];
+
+                    // Se le asigna el rol al usuario recien registrado
+                    $sqlAssignRol = "INSERT INTO user_role_assignments (user_auth_id, role_id) VALUES ($user_auth_id, $userRolId)";
+                    $this->conn->query($sqlAssignRol);
+                }
                 mail($email, "Verificación de cuenta", "Tu código de verificación es: $token. Tienes 30 minutos para verificar tu cuenta.");
                 jsonResponse(["success" => true, "message" => "Registro exitoso. Verifica tu correo para activar la cuenta."]);
             } else {
