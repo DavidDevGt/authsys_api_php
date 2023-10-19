@@ -63,3 +63,17 @@ VALUES
   ('admin', 'Administrador del sistema'),
   ('user', 'Usuario del sistema');
 
+-- Permisos para el rol admin
+INSERT INTO permissions (role_id, permission) VALUES (1, 'edit_user');
+INSERT INTO permissions (role_id, permission) VALUES (1, 'delete_user');
+INSERT INTO permissions (role_id, permission) VALUES (1, 'assign_role');
+INSERT INTO permissions (role_id, permission) VALUES (1, 'revoke_role');
+INSERT INTO permissions (role_id, permission) VALUES (1, 'create_role');
+INSERT INTO permissions (role_id, permission) VALUES (1, 'edit_role');
+INSERT INTO permissions (role_id, permission) VALUES (1, 'delete_role');
+INSERT INTO permissions (role_id, permission) VALUES (1, 'assign_permission');
+INSERT INTO permissions (role_id, permission) VALUES (1, 'revoke_permission');
+
+-- Permisos para el rol user
+INSERT INTO permissions (role_id, permission) VALUES (2, 'view_profile');
+INSERT INTO permissions (role_id, permission) VALUES (2, 'edit_profile');
