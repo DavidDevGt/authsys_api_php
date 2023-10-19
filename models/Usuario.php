@@ -129,4 +129,45 @@ class Usuario
             jsonResponse(["success" => false, "message" => "Correo electrónico no registrado."], 400);
         }
     }
+
+    public function getProfile($userId)
+    {
+        $sql = "SELECT * FROM user_profile WHERE user_auth_id = $userId";
+        $result = $this->conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        } else {
+            return null;
+        }
+    }
+
+    public function updateProfile($userId, $data)
+    {
+        $firstName = $data['first_name'];
+        $lastName = $data['last_name'];
+        $fechaNacimiento = $data['fecha_nacimiento'];
+        $address = $data['address'];
+
+        $sqlCheck = "SELECT * FROM user_profile WHERE user_auth_id = $userId";
+        $resultCheck = $this->conn->query($sqlCheck);
+
+        if ($resultCheck->num_rows > 0) {
+            // Actualizar el perfil si ya existe
+            $sqlUpdate = "UPDATE user_profile SET first_name = '$firstName', last_name = '$lastName', fecha_nacimiento = '$fechaNacimiento', address = '$address' WHERE user_auth_id = $userId";
+            if ($this->conn->query($sqlUpdate) == TRUE) {
+                return ["success" => true, "message" => "Perfil actualizado correctamente."];
+            } else {
+                return ["success" => false, "message" => "Error al actualizar el perfil."];
+            }
+        } else {
+            // Crear el perfil si no existe
+            $sqlInsert = "INSERT INTO user_profile (user_auth_id, first_name, last_name, fecha_nacimiento, address) VALUES ($userId, '$firstName', '$lastName', '$fechaNacimiento', '$address')";
+            if ($this->conn->query($sqlInsert) == TRUE) {
+                return ["success" => true, "message" => "Perfil creado correctamente."];
+            } else {
+                return ["success" => false, "message" => "Error al crear el perfil."];
+            }
+        }
+    }
 }

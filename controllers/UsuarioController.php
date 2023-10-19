@@ -31,4 +31,14 @@ class UsuarioController
     {
         return $this->model->verify($data);
     }
+
+    public function getProfile($userId)
+    {
+        return $this->model->getProfile($userId);
+    }
+
+    public function updateProfile($userId, $data)
+    {
+        return $this->model->updateProfile($userId, $data);
+    }
 }
