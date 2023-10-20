@@ -14,6 +14,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 // Sesiones PHP
 session_start();
 
+// Finalizar ejecución en caso de método OPTIONS
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
@@ -26,7 +27,14 @@ $permisoController = new PermisoController();
 // Verificar el método de la solicitud HTTP
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-// Funciones para las sesiones y roles
+// Funciones para la API
+
+/**
+ * La función "verificarSesion" verifica si el usuario está autenticado y devuelve verdadero si lo
+ * está, de lo contrario envía una respuesta JSON con un mensaje de error y sale del script.
+ * 
+ * @return - un valor booleano.
+ */
 function verificarSesion()
 {
     if (!isset($_SESSION['user_id']) || !$_SESSION['is_authenticated']) {
@@ -36,6 +44,13 @@ function verificarSesion()
     return true;
 }
 
+/**
+ * La función "verificarRol" verifica si el usuario tiene el rol requerido para realizar una
+ * determinada acción.
+ * 
+ * @param - rolRequerido El parámetro "rolRequerido" representa el rol requerido por un usuario para
+ * realizar una determinada acción.
+ */
 function verificarRol($rolRequerido)
 {
     // Primero, verificamos si el usuario está autenticado
@@ -48,149 +63,150 @@ function verificarRol($rolRequerido)
     }
 }
 
+/**
+ * La función "validarParametro" comprueba si falta algún parámetro o tiene un tipo incorrecto y
+ * devuelve verdadero si todo es válido.
+ * 
+ * @param - parametro El parámetro "parámetro" es el valor que necesita ser validado. Puede ser de
+ * cualquier tipo de datos.
+ * @param - tipoEsperado El parámetro "tipoEsperado" es un parámetro opcional que especifica el tipo de
+ * datos esperado del parámetro "parametro". Si se proporciona, la función comprobará si el tipo de
+ * datos del parámetro "parámetro" coincide con el tipo esperado.
+ * 
+ * @return - un valor booleano de verdadero.
+ */
+function validarParametro($parametro, $tipoEsperado = null) {
+    if (!isset($parametro)) {
+        jsonResponse(["message" => "Parámetro faltante"], 400);
+        exit;
+    }
+    if ($tipoEsperado && gettype($parametro) !== $tipoEsperado) {
+        jsonResponse(["message" => "Tipo de parámetro incorrecto"], 400);
+        exit;
+    }
+    return true;
+}
 
 // Procesar la solicitud según el método HTTP y la acción proporcionada
 switch ($requestMethod) {
-        // Peticiones POST
     case 'POST':
-        // Verificar si se proporciona una acción
-        if (isset($_GET['action'])) {
-            switch ($_GET['action']) {
-                case 'register':
-                    // Registrar un usuario
-                    $response = $usuarioController->register($_POST);
-                    jsonResponse($response);
-                    break;
-                case 'login':
-                    // Iniciar sesión de un usuario
-                    $response = $usuarioController->login($_POST);
-                    jsonResponse($response);
-                    break;
-                case 'verify':
-                    // Verificar la cuenta de un usuario
-                    $response = $usuarioController->verify($_POST);
-                    jsonResponse($response);
-                    break;
-                case 'logout':
-                    verificarSesion();
-                    $response = $usuarioController->logout();
-                    jsonResponse($response);
-                    break;
-                case 'addRole':
-                    // Agregar un rol
-                    verificarSesion();
-                    verificarRol('admin');
-                    $response = $rolController->addRole($_POST);
-                    jsonResponse($response);
-                    break;
-                case 'updateRole':
-                    // Actualizar un rol
-                    verificarSesion();
-                    verificarRol('admin');
-                    $response = $rolController->updateRole($_POST['id'], $_POST);
-                    break;
-                case 'deleteRole':
-                    // Eliminar un rol
-                    verificarSesion();
-                    verificarRol('admin');
-                    $response = $rolController->deleteRole($_POST['id']);
-                    jsonResponse($response);
-                    break;
-                case 'addPermission':
-                    // Agregar un permiso
-                    verificarSesion();
-                    verificarRol('admin');
-                    $response = $permisoController->addPermission($_POST);
-                    jsonResponse($response);
-                    break;
-                case 'updatePermission':
-                    // Actualizar un permiso
-                    verificarSesion();
-                    verificarRol('admin');
-                    $response = $permisoController->updatePermission($_POST['id'], $_POST);
-                    jsonResponse($response);
-                    break;
-                case 'deletePermission':
-                    // Eliminar un permiso
-                    verificarSesion();
-                    verificarRol('admin');
-                    $response = $permisoController->deletePermission($_POST['id']);
-                    jsonResponse($response);
-                    break;
-                case 'updateProfile':
-                    // Actualizar el perfil del usuario
-                    verificarSesion();
-                    $response = $usuarioController->updateProfile($_SESSION['user_id'], $_POST);
-                    jsonResponse($response);
-                    break;
-                default:
-                    // Acción no reconocida
-                    jsonResponse(["message" => "Acción no permitida"], 400);
-                    break;
-            }
-        } else {
-            // No se proporcionó ninguna acción
-            jsonResponse(["message" => "Acción no especificada"], 400);
+        validarParametro($_GET['action'], 'string');
+        switch ($_GET['action']) {
+            case 'register':
+                validarParametro($_POST);
+                $response = $usuarioController->register($_POST);
+                jsonResponse($response);
+                break;
+            case 'login':
+                validarParametro($_POST);
+                $response = $usuarioController->login($_POST);
+                jsonResponse($response);
+                break;
+            case 'verify':
+                validarParametro($_POST);
+                $response = $usuarioController->verify($_POST);
+                jsonResponse($response);
+                break;
+            case 'logout':
+                verificarSesion();
+                $response = $usuarioController->logout();
+                jsonResponse($response);
+                break;
+            case 'addRole':
+                verificarSesion();
+                verificarRol('admin');
+                validarParametro($_POST);
+                $response = $rolController->addRole($_POST);
+                jsonResponse($response);
+                break;
+            case 'updateRole':
+                verificarSesion();
+                verificarRol('admin');
+                validarParametro($_POST['id'], 'string');
+                $response = $rolController->updateRole($_POST['id'], $_POST);
+                jsonResponse($response);
+                break;
+            case 'deleteRole':
+                verificarSesion();
+                verificarRol('admin');
+                validarParametro($_POST['id'], 'string');
+                $response = $rolController->deleteRole($_POST['id']);
+                jsonResponse($response);
+                break;
+            case 'addPermission':
+                verificarSesion();
+                verificarRol('admin');
+                validarParametro($_POST);
+                $response = $permisoController->addPermission($_POST);
+                jsonResponse($response);
+                break;
+            case 'updatePermission':
+                verificarSesion();
+                verificarRol('admin');
+                validarParametro($_POST['id'], 'string');
+                $response = $permisoController->updatePermission($_POST['id'], $_POST);
+                jsonResponse($response);
+                break;
+            case 'deletePermission':
+                verificarSesion();
+                verificarRol('admin');
+                validarParametro($_POST['id'], 'string');
+                $response = $permisoController->deletePermission($_POST['id']);
+                jsonResponse($response);
+                break;
+            case 'updateProfile':
+                verificarSesion();
+                validarParametro($_SESSION['user_id'], 'string');
+                $response = $usuarioController->updateProfile($_SESSION['user_id'], $_POST);
+                jsonResponse($response);
+                break;
+            default:
+                jsonResponse(["message" => "Acción no permitida"], 400);
+                break;
         }
         break;
 
-        // Peticiones GET
     case 'GET':
-        if (isset($_GET['action'])) {
-            switch ($_GET['action']) {
-                case 'getAllRoles':
-                    // Devolver todos los roles
-                    verificarSesion();
-                    verificarRol('admin');
-                    $response = $rolController->getAllRoles();
-                    jsonResponse($response);
-                    break;
-                case 'getRoleById':
-                    // Devolver un rol por su id
-                    verificarSesion();
-                    verificarRol('admin');
-                    if (!isset($_GET['id'])) {
-                        jsonResponse(["message" => "El parámetro 'id' es requerido"], 400);
-                        exit;
-                    }
-                    $response = $rolController->getRoleById($_GET['id']);
-                    jsonResponse($response);
-                    break;
-                case 'getAllPermissions':
-                    // Devolver todos los permisos
-                    verificarSesion();
-                    verificarRol('admin');
-                    $response = $permisoController->getAllPermissions();
-                    jsonResponse($response);
-                    break;
-                case 'getPermissionById':
-                    // Devolver un permiso por su id
-                    verificarSesion();
-                    verificarRol('admin');
-                    if (!isset($_GET['id'])) {
-                        jsonResponse(["message" => "El parámetro 'id' es requerido"], 400);
-                        exit;
-                    }
-                    $response = $permisoController->getPermissionById($_GET['id']);
-                    jsonResponse($response);
-                    break;
-                case 'getProfile':
-                    // Devolver el perfil del usuario por el id de la sesión
-                    verificarSesion();
-                    $response = $usuarioController->getProfile($_SESSION['user_id']);
-                    jsonResponse($response);
-                    break;
-                default:
-                    // Acción no reconocida
-                    jsonResponse(["message" => "Acción no permitida"], 400);
-                    break;
-            }
-        } else {
-            jsonResponse(["message" => "Acción no especificada"], 400);
+        validarParametro($_GET['action'], 'string');
+        switch ($_GET['action']) {
+            case 'getAllRoles':
+                verificarSesion();
+                verificarRol('admin');
+                $response = $rolController->getAllRoles();
+                jsonResponse($response);
+                break;
+            case 'getRoleById':
+                verificarSesion();
+                verificarRol('admin');
+                validarParametro($_GET['id'], 'string');
+                $response = $rolController->getRoleById($_GET['id']);
+                jsonResponse($response);
+                break;
+            case 'getAllPermissions':
+                verificarSesion();
+                verificarRol('admin');
+                $response = $permisoController->getAllPermissions();
+                jsonResponse($response);
+                break;
+            case 'getPermissionById':
+                verificarSesion();
+                verificarRol('admin');
+                validarParametro($_GET['id'], 'string');
+                $response = $permisoController->getPermissionById($_GET['id']);
+                jsonResponse($response);
+                break;
+            case 'getProfile':
+                verificarSesion();
+                validarParametro($_SESSION['user_id'], 'string');
+                $response = $usuarioController->getProfile($_SESSION['user_id']);
+                jsonResponse($response);
+                break;
+            default:
+                jsonResponse(["message" => "Acción no permitida"], 400);
+                break;
         }
         break;
     default:
-        // Método HTTP no permitido
         jsonResponse(["message" => "Método no permitido"], 405);
         break;
 }
