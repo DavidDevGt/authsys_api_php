@@ -1,5 +1,8 @@
 {
     "require-dev": {
         "phpunit/phpunit": "^10.4"
+    },
+    "require": {
+        "swiftmailer/swiftmailer": "^6.3"
     }
 }
