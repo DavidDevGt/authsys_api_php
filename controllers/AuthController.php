@@ -28,17 +28,26 @@ class AuthController
 
     public function verifyToken($user_auth_id, $token)
     {
-        // Verificar si el token es válido
+        // Verificar si el token es válido y no ha expirado
         $sql = "SELECT token FROM verification_tokens WHERE user_auth_id = $user_auth_id AND token = '$token'";
         $result = $this->conn->query($sql);
         if ($result->num_rows > 0) {
-            // Eliminar tokens antiguos ya usados de este usuario
-            $sqlDelete = "DELETE FROM verification_tokens WHERE user_auth_id = $user_auth_id";
-            $this->conn->query($sqlDelete);
-            return true;
-        } else {
-            return false;
+            $row = $result->fetch_assoc();
+            $tokenCreatedAt = new DateTime($row['created_at']);
+            $currentTime = new DateTime();
+
+            $interval = $currentTime->diff($tokenCreatedAt);
+            $minutesPassed = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+
+            if ($minutesPassed <= 30) {
+                // Eliminar tokens antiguos ya usados de este usuario
+                $sqlDelete = "DELETE FROM verification_tokens WHERE user_auth_id = $user_auth_id";
+                $this->conn->query($sqlDelete);
+                return true;
+            }
         }
+        // Token expiro o no se hallo ninguno
+        return false;
     }
 
     public function deleteOldToken()
