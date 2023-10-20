@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../response.php';
+require_once __DIR__ . '/../views/response.php';
 
 class AuthController
 {
@@ -30,8 +30,11 @@ class AuthController
 
     public function verifyToken($user_auth_id, $token)
     {
+       // echo "user_auth_id: " . $user_auth_id . "<br>";
+       // echo "token: " . $token . "<br>";
+
         // VERIFICAR QUE EL TOKEN SEA VÁLIDO
-        $sql = "SELECT token FROM verification_tokens WHERE user_auth_id = $user_auth_id AND token = '$token'";
+        $sql = "SELECT token, created_at FROM verification_tokens WHERE user_auth_id = $user_auth_id AND token = '$token'";
         $result = $this->conn->query($sql);
         if (!$result) {
             // SI HAY ERROR AL EJECUTAR LA CONSULTA
@@ -41,6 +44,8 @@ class AuthController
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
 
+            // echo "Fecha de creación del token: " . $row['created_at'] . "<br>";
+
             // ESTO ES PARA CALCULAR LOS TIEMPOS DE LOS TOKENS CREADOS ANTERIORMENTE
             $tokenCreatedAt = new DateTime($row['created_at']);
             $currentTime = new DateTime();
@@ -48,15 +53,21 @@ class AuthController
             $interval = $currentTime->diff($tokenCreatedAt);
             $minutesPassed = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
 
-            // SI EL TOKEN SE CREO HACE MAS DE 30 MIN SE BORRA DE LA BASE DE DATOS
+            // SI EL TOKEN SE CREÓ HACE MÁS DE 30 MIN SE BORRA DE LA BASE DE DATOS
             if ($minutesPassed <= 30) {
+                
+                // echo "Minutes Passed: " . $minutesPassed . "<br>";
+
                 $sqlDelete = "DELETE FROM verification_tokens WHERE user_auth_id = $user_auth_id";
+                
+                //echo "SQL Delete: " . $sqlDelete . "<br>";
+
                 if ($this->conn->query($sqlDelete) === FALSE) {
                     jsonResponse(["message" => "Error al eliminar el token antiguo. Por favor, intente nuevamente."], 500);
                     exit;
                 }
-                return true;
             }
+            return true;
         }
         return false;
     }
