@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
 // Encabezados para soporte CORS
 header("Access-Control-Allow-Origin: *"); // Aqui tengo que cambiar * por mi sitio web cuando mande a produccion
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE"); // Metodos que permito en mi API

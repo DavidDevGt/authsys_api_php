@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../views/response.php';
-
+require_once __DIR__ . '/../vendor/autoload.php';
 
 class Usuario
 {
@@ -22,28 +22,73 @@ class Usuario
         $password = password_hash($data['password'], PASSWORD_DEFAULT);
         $sql = "INSERT INTO user_auth (email, password) VALUES ('$email', '$password')";
 
-        if ($this->conn->query($sql) === TRUE) {
-            $user_auth_id = $this->conn->insert_id;
-            $token = $this->authController->generarToken($user_auth_id);
-            if ($token) {
-                // Obtener el ID del rol 'user'
-                $sqlRol = "SELECT id FROM user_roles WHERE name = 'user'";
-                $resultRol = $this->conn->query($sqlRol);
-                if ($resultRol->num_rows > 0) {
-                    $rowRol = $resultRol->fetch_assoc();
-                    $userRolId = $rowRol['id'];
+        try {
 
-                    // Se le asigna el rol al usuario recien registrado
-                    $sqlAssignRol = "INSERT INTO user_role_assignments (user_auth_id, role_id) VALUES ($user_auth_id, $userRolId)";
-                    $this->conn->query($sqlAssignRol);
+            if ($this->conn->query($sql) === TRUE) {
+                $user_auth_id = $this->conn->insert_id;
+                $token = $this->authController->generarToken($user_auth_id);
+                if ($token) {
+                    // Obtener el ID del rol 'user'
+                    $sqlRol = "SELECT id FROM user_roles WHERE name = 'user'";
+                    $resultRol = $this->conn->query($sqlRol);
+                    if ($resultRol->num_rows > 0) {
+                        $rowRol = $resultRol->fetch_assoc();
+                        $userRolId = $rowRol['id'];
+
+                        // Se le asigna el rol al usuario recién registrado
+                        $sqlAssignRol = "INSERT INTO user_role_assignments (user_auth_id, role_id) VALUES ($user_auth_id, $userRolId)";
+                        $this->conn->query($sqlAssignRol);
+                    }
+
+                    try {
+                        // Configurar envío de correos con SwiftMailer
+                        $config = require __DIR__ . '/../config/mail.php';
+                        $transport = (new Swift_SmtpTransport($config['host'], $config['port'], $config['encryption']))
+                            ->setUsername($config['username'])
+                            ->setPassword($config['password']);
+
+                        $mailer = new Swift_Mailer($transport);
+
+                        $message = (new Swift_Message('Verificación de cuenta'))
+                            ->setFrom(['noreply@authsys.com' => 'Verifica tu cuenta en AuthSys'])
+                            ->setTo([$email])
+                            ->setBody("Tu código de verificación es: $token. Tienes 30 minutos para verificar tu cuenta.");
+
+                        $result = $mailer->send($message);
+
+                        if ($result) {
+                            jsonResponse(["success" => true, "message" => "Registro exitoso. Verifica tu correo para activar la cuenta."]);
+                        } else {
+                            jsonResponse(["success" => false, "message" => "Error al enviar el correo de verificación"], 500);
+                        }
+
+                    } catch (Swift_TransportException $e) {
+                        // Mostrar mensaje personalizado al usuario
+                        jsonResponse(["success" => false, "message" => "Error conectando al servidor SMTP"], 500);
+
+                        // Registrar el error detallado (opcional)
+                        // error_log($e->getMessage());
+
+                    } catch (Exception $e) {
+                        // Mostrar mensaje general de error al usuario
+                        jsonResponse(["success" => false, "message" => "Ha ocurrido un error inesperado: " . $e->getMessage()], 500);
+
+                        // Registrar el error detallado (opcional)
+                        // error_log($e->getMessage());
+                    }
+
+                } else {
+                    jsonResponse(["success" => false, "message" => "Error al generar el token"], 500);
                 }
-                mail($email, "Verificación de cuenta", "Tu código de verificación es: $token. Tienes 30 minutos para verificar tu cuenta.");
-                jsonResponse(["success" => true, "message" => "Registro exitoso. Verifica tu correo para activar la cuenta."]);
             } else {
-                jsonResponse(["success" => false, "message" => "Error al generar el token"], 500);
+                jsonResponse(["success" => false, "message" => "Error al registrar el usuario"], 500);
             }
-        } else {
-            jsonResponse(["success" => false, "message" => "Error al registrar el usuario"], 500);
+        } catch (mysqli_sql_exception $e) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'for key \'email\'') !== false) {
+                jsonResponse(["success" => false, "message" => "El correo electrónico ya está registrado"], 409);
+            } else {
+                jsonResponse(["success" => false, "message" => "Ha ocurrido un error inesperado en la base de datos"], 500);
+            }
         }
     }
 
