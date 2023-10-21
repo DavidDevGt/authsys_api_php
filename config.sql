@@ -77,3 +77,11 @@ INSERT INTO permissions (role_id, permission) VALUES (1, 'revoke_permission');
 -- Permisos para el rol user
 INSERT INTO permissions (role_id, permission) VALUES (2, 'view_profile');
 INSERT INTO permissions (role_id, permission) VALUES (2, 'edit_profile');
+
+-- Insertar usuario admin
+INSERT INTO user_auth (email, password, is_verified)
+VALUES ('admin@admin.com', 'admin123', TRUE);
+
+-- Asignar el rol admin al usuario admin
+INSERT INTO user_role_assignments (user_auth_id, role_id)
+VALUES (LAST_INSERT_ID(), 1);
