@@ -75,7 +75,8 @@ function verificarRol($rolRequerido)
  * 
  * @return - un valor booleano de verdadero.
  */
-function validarParametro($parametro, $tipoEsperado = null) {
+function validarParametro($parametro, $tipoEsperado = null)
+{
     if (!isset($parametro)) {
         jsonResponse(["message" => "Parámetro faltante"], 400);
         exit;
@@ -201,6 +202,20 @@ switch ($requestMethod) {
                 $response = $usuarioController->getProfile($_SESSION['user_id']);
                 jsonResponse($response);
                 break;
+            default:
+                jsonResponse(["message" => "Acción no permitida"], 400);
+                break;
+        }
+        break;
+    case 'DELETE':
+        validarParametro($_GET['action'], 'string');
+        switch ($_GET['action']) {
+            case 'deleteUser':
+                verificarSesion();
+                verificarRol('admin');
+                validarParametro($_GET['userId'], 'string');
+                break;
+
             default:
                 jsonResponse(["message" => "Acción no permitida"], 400);
                 break;

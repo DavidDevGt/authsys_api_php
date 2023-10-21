@@ -215,4 +215,42 @@ class Usuario
             }
         }
     }
+
+    public function deleteUser($userId)
+    {
+        // Iniciar una transacción, nunca habia trabajado con este enfoque
+        $this->conn->begin_transaction();
+
+        try {
+            // Eliminar tokens de verificación relacionados
+            $sql = "DELETE FROM verification_tokens WHERE user_auth_id = $userId";
+            $this->conn->query($sql);
+
+            // Eliminar sesiones relacionadas
+            $sql = "DELETE FROM user_sessions WHERE user_auth_id = $userId";
+            $this->conn->query($sql);
+
+            // Eliminar asignaciones de roles relacionadas
+            $sql = "DELETE FROM user_role_assignments WHERE user_auth_id = $userId";
+            $this->conn->query($sql);
+
+            // Eliminar perfil de usuario relacionado
+            $sql = "DELETE FROM user_profile WHERE user_auth_id = $userId";
+            $this->conn->query($sql);
+
+            // Finalmente, eliminar al usuario
+            $sql = "DELETE FROM user_auth WHERE id = $userId";
+            $this->conn->query($sql);
+
+            // Si todo salió bien, confirmar los cambios
+            $this->conn->commit();
+
+            return ["success" => true, "message" => "Usuario eliminado exitosamente."];
+
+        } catch (Exception $e) {
+            // Si hay algún error, revertir los cambios
+            $this->conn->rollback();
+            return ["success" => false, "message" => "Error al eliminar el usuario.", "error" => $e->getMessage()];
+        }
+    }
 }

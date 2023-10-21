@@ -42,4 +42,9 @@ class UsuarioController
     {
         return $this->model->updateProfile($userId, $data);
     }
+
+    public function deleteUser($userId)
+    {
+        return $this->model->deleteUser($userId);
+    }
 }
